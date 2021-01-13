@@ -49,8 +49,8 @@ namespace EchoBot.Bots
             var translation = await _translator.TranslateAsync(message, from, to);
 
             var resultBuilder = new StringBuilder();
-            resultBuilder.AppendLine($"Request: {message} ({LanguageToEmoji(from)})");
-            resultBuilder.AppendLine($"Translation: {translation} ({LanguageToEmoji(to)})");
+            resultBuilder.AppendLine($"Request: {message} ({LanguageToEmoji(from)})").AppendLine();
+            resultBuilder.AppendLine($"Translation: {translation} ({LanguageToEmoji(to)})").AppendLine();
 
             await turnContext.SendActivityAsync(CreateMessageActivity(resultBuilder.ToString()), cancellationToken);
         }

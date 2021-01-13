@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EchoBot.Services;
 using FluentAssertions;
@@ -10,26 +10,27 @@ namespace MultiTranslator.UnitTests
     {
         private readonly SimpleLanguageDetector _simpleLanguageDetector = new SimpleLanguageDetector();
 
-        [Fact]
-        public async Task Detect_OnEnglishSymbol_ReturnsEng()
+        [Theory]
+        [MemberData(nameof(Detect_Tests_Source))]
+        public async Task Detect_OnEnglishSymbol_ReturnsEng(string input, Languages expectedLanguage)
         {
-            var result = await _simpleLanguageDetector.DetectAsync("hello");
-            result.Should().Be(Languages.En);
+            var result = await _simpleLanguageDetector.DetectAsync(input);
+            result.Should().Be(expectedLanguage, because: $"{input} => {expectedLanguage}");
         }
 
-        [Fact]
-        public async Task Detect_OnRussianSymbol_ReturnsRu()
+        public static IEnumerable<object[]> Detect_Tests_Source()
         {
-            var result = await _simpleLanguageDetector.DetectAsync("дратути");
-            result.Should().Be(Languages.Ru);
-        }
-
-        /// TODO: This behavior is simplest one and should be refactored while multi language support implementation
-        [Fact]
-        public async Task Detect_OnMixedSymbols_ReturnsRu()
-        {
-            var result = await _simpleLanguageDetector.DetectAsync("драHelloтути");
-            result.Should().Be(Languages.Ru);
+            return new List<object[]>
+            {
+                new object[]{"hello", Languages.En,},
+                new object[]{"дратути", Languages.Ru,},
+                new object[]{"драHelloтути", Languages.Ru,},
+                new object[]{"привет медвед", Languages.Ru},
+                new object[]{"hello bear", Languages.En,},
+                new object[]{"hi медвед", Languages.Ru},
+                new object[]{"hi! how are you?", Languages.En},
+                new object[]{"привет, медвед!", Languages.Ru},
+            };
         }
     }
 }
