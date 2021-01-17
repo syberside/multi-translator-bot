@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Google.Cloud.Translation.V2;
 
-namespace EchoBot.Services
+namespace MultiTranslator.AzureBot.Services
 {
     public class GoogleTranslateFacade : ITranslator
     {

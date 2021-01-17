@@ -1,6 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
-using EchoBot.Services.UsageSamples.ContextReverso;
+using MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso;
 using FluentAssertions;
 using Xunit;
 

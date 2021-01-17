@@ -3,36 +3,30 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EchoBot.Services;
+using MultiTranslator.AzureBot.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
+using MultiTranslator.AzureBot.Services.UsageSamples;
+using MultiTranslator.AzureBot.Services.Helpers;
 
-namespace EchoBot.Bots
+namespace MultiTranslator.AzureBot.Bots
 {
     public class MultiTranslatorBot : ActivityHandler
     {
         private readonly ILanguageDetector _languageDetector;
         private readonly ITranslator _translator;
+        private readonly IUsageSamplesProvider _samplesProvider;
 
-        public MultiTranslatorBot(ILanguageDetector languageDetector, ITranslator translator)
+        public MultiTranslatorBot(ILanguageDetector languageDetector, ITranslator translator, IUsageSamplesProvider samplesProvider)
         {
             _languageDetector = languageDetector;
             _translator = translator;
+            _samplesProvider = samplesProvider;
         }
 
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            //TODO: implement translation logic
-            //WF: 
-            // 10. -> User inputs text
-            // 15. | Bot sends reply "typing"
-            // 20. | Bot determines language (RU/Eng)
-            // 30. | Bot requests for translation to 3rd party service (s)
-            // 40. <- Bot sends reply with translation and determined language
-            //- FUTURE FEATURE: 50. <- Bot sends action buttons (add/remove to vocabulary)
-            //- FUTURE FEATURE:  60. <- Bot sends reply with statistic on word
-
             // Check input
             var message = (turnContext.Activity.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(message))
@@ -45,17 +39,30 @@ namespace EchoBot.Bots
 
             var from = await _languageDetector.DetectAsync(turnContext.Activity.Text);
 
-            var to = FlipLanguage(from);
+            var to = MapToOutputLanguage(from);
             var translation = await _translator.TranslateAsync(message, from, to);
+            var samples = await _samplesProvider.GetSamplesAsync(message, from, to);
 
+            var fromEmoji = LanguageToEmoji(from);
+            var toEmoji = LanguageToEmoji(to);
             var resultBuilder = new StringBuilder();
-            resultBuilder.AppendLine($"Request: {message} ({LanguageToEmoji(from)})").AppendLine();
-            resultBuilder.AppendLine($"Translation: {translation} ({LanguageToEmoji(to)})").AppendLine();
+            resultBuilder
+                .AppendLine($"{fromEmoji} {message}").AppendLine()
+                .AppendLine($"{toEmoji} {translation}").AppendLine()
+                .AppendLine().AppendLine()
+                .AppendLine("UsageSamples:").AppendLine()
+                .AppendLine($"{fromEmoji} | {toEmoji}").AppendLine()
+                .AppendLine("|:---:|:---:|").AppendLine();
+            foreach (var sample in samples)
+            {
+                resultBuilder.AppendLine($"{sample.SourceMd.ToMdString()} | {sample.TargetMd.ToMdString()} |").AppendLine();
+            }
+
 
             await turnContext.SendActivityAsync(CreateMessageActivity(resultBuilder.ToString()), cancellationToken);
         }
 
-        private Languages FlipLanguage(Languages language)
+        private Languages MapToOutputLanguage(Languages language)
         {
             return language == Languages.En ? Languages.Ru : Languages.En;
         }

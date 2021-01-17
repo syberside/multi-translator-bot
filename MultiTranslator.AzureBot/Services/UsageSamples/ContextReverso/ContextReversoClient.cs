@@ -6,21 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace EchoBot.Services.UsageSamples.ContextReverso
+namespace MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso
 {
     public class ContextReversoClient : IContextReversoClient
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private const string _bstQueryEndpoint = "https://context.reverso.net/bst-query-service";
 
-        public ContextReversoClient(HttpClient httpClient)
+        public ContextReversoClient(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<HtmlUsageSample[]> GetSamplesAsync(string text, CRLanguage from, CRLanguage to)
         {
-            var request = new ContextReversoBstQueryRequest
+            var request = new BstQueryRequest
             {
                 Mode = 0,
                 Page = 1,
@@ -43,7 +43,8 @@ namespace EchoBot.Services.UsageSamples.ContextReverso
                 },
                 Content = stringContent
             };
-            var httpAnswer = await _httpClient.SendAsync(content);
+            var httpClient = _httpClientFactory.CreateClient();
+            var httpAnswer = await httpClient.SendAsync(content);
 
             var answerContent = await httpAnswer.Content.ReadAsStringAsync();
             if (httpAnswer.StatusCode != HttpStatusCode.OK)

@@ -2,9 +2,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace EchoBot.Services.UsageSamples.ContextReverso
+namespace MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso
 {
-    public class ContextReversoBstQueryRequest
+    public class BstQueryRequest
     {
         [JsonProperty("source_lang")]
         [JsonConverter(typeof(StringEnumConverter))]

@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace EchoBot.Services.UsageSamples.ContextReverso
+namespace MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso
 {
     public enum CRLanguage
     {

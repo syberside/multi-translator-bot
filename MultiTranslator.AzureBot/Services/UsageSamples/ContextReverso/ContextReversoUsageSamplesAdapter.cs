@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Markdig;
 using Markdig.Syntax;
 
-namespace EchoBot.Services.UsageSamples.ContextReverso
+namespace MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso
 {
     public class ContextReversoUsageSamplesAdapter : IUsageSamplesProvider
     {
@@ -44,6 +44,14 @@ namespace EchoBot.Services.UsageSamples.ContextReverso
             return Markdown.Parse(mdText);
         }
 
-        private CRLanguage MapLanguageToCode(Languages language) => throw new NotImplementedException();
+        private CRLanguage MapLanguageToCode(Languages language)
+        {
+            switch (language)
+            {
+                case Languages.En: return CRLanguage.Eng;
+                case Languages.Ru: return CRLanguage.Ru;
+                default: throw new NotSupportedException();
+            }
+        }
     }
 }

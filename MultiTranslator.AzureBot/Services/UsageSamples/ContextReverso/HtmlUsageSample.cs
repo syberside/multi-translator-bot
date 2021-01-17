@@ -1,4 +1,4 @@
-namespace EchoBot.Services.UsageSamples.ContextReverso
+namespace MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso
 {
     public class HtmlUsageSample
     {

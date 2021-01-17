@@ -5,7 +5,7 @@
 
 using System.IO;
 using System.Reflection;
-using EchoBot.Services;
+using MultiTranslator.AzureBot.Services;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Translation.V2;
 using Microsoft.AspNetCore.Builder;
@@ -15,8 +15,10 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MultiTranslator.AzureBot.Services.UsageSamples;
+using MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso;
 
-namespace EchoBot
+namespace MultiTranslator.AzureBot
 {
     public class Startup
     {
@@ -48,7 +50,10 @@ namespace EchoBot
                     return TranslationClient.Create(creds);
                 })
                 .AddSingleton<ILanguageDetector, SimpleLanguageDetector>()
-                .AddSingleton<ITranslator, GoogleTranslateFacade>();
+                .AddSingleton<ITranslator, GoogleTranslateFacade>()
+                .AddSingleton<IUsageSamplesProvider, ContextReversoUsageSamplesAdapter>()
+                .AddSingleton<IContextReversoClient, ContextReversoClient>()
+                .AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

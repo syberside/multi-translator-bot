@@ -2,7 +2,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace EchoBot.Services
+namespace MultiTranslator.AzureBot.Services
 {
 
     public class SimpleLanguageDetector : ILanguageDetector

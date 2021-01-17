@@ -1,4 +1,4 @@
-namespace EchoBot.Services
+namespace MultiTranslator.AzureBot.Services
 {
     public enum Languages{
         Ru,

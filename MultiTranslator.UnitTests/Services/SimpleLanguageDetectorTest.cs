@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using EchoBot.Services;
+using MultiTranslator.AzureBot.Services;
 using FluentAssertions;
 using Xunit;
 

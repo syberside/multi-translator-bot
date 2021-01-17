@@ -1,7 +1,7 @@
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using EchoBot.Services;
+using MultiTranslator.AzureBot.Services;
 using FluentAssertions;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Translation.V2;

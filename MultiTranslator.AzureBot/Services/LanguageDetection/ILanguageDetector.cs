@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace EchoBot.Services
+namespace MultiTranslator.AzureBot.Services
 {
     public interface ILanguageDetector
     {
