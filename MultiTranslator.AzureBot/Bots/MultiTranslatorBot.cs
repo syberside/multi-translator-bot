@@ -8,6 +8,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using MultiTranslator.AzureBot.Services.UsageSamples;
 using MultiTranslator.AzureBot.Services.Helpers;
+using System.Linq;
 
 namespace MultiTranslator.AzureBot.Bots
 {
@@ -45,21 +46,26 @@ namespace MultiTranslator.AzureBot.Bots
 
             var fromEmoji = LanguageToEmoji(from);
             var toEmoji = LanguageToEmoji(to);
-            var resultBuilder = new StringBuilder();
-            resultBuilder
+
+            var activities = new List<Activity>();
+
+            var directTranslation = new StringBuilder();
+            directTranslation
                 .AppendLine($"{fromEmoji} {message}").AppendLine()
-                .AppendLine($"{toEmoji} {translation}").AppendLine()
-                .AppendLine().AppendLine()
-                .AppendLine("UsageSamples:").AppendLine()
-                .AppendLine($"{fromEmoji} | {toEmoji}").AppendLine()
-                .AppendLine("|:---:|:---:|").AppendLine();
-            foreach (var sample in samples)
+                .AppendLine($"{toEmoji} {translation}").AppendLine();
+            activities.Add(CreateMessageActivity(directTranslation.ToString()));
+
+            foreach (var sample in samples.Take(2))
             {
-                resultBuilder.AppendLine($"{sample.SourceMd.ToMdString()} | {sample.TargetMd.ToMdString()} |").AppendLine();
+                var sampleBuilder = new StringBuilder();
+                sampleBuilder
+                    .AppendLine($"{fromEmoji} {sample.SourceMd.ToMdString()}").AppendLine()
+                    .AppendLine($"{toEmoji} {sample.TargetMd.ToMdString()}").AppendLine();
+                activities.Add(CreateMessageActivity(sampleBuilder.ToString()));
             }
 
-
-            await turnContext.SendActivityAsync(CreateMessageActivity(resultBuilder.ToString()), cancellationToken);
+            //TODO: Add button for "show more samples"
+            await turnContext.SendActivitiesAsync(activities.ToArray(), cancellationToken);
         }
 
         private Languages MapToOutputLanguage(Languages language)

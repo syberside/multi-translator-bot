@@ -11,8 +11,8 @@ namespace MultiTranslator.IntegrationTests.Services
         [Fact]
         public async Task CanTranslate()
         {
-            var httpClient = new HttpClient();
-            var client = new ContextReversoClient(httpClient);
+            var httpClientFactory = new HttpFactory();
+            var client = new ContextReversoClient(httpClientFactory);
 
             ValidateResult(await client.GetSamplesAsync("добрый вечер!", CRLanguage.Ru, CRLanguage.Eng));
 
@@ -27,6 +27,14 @@ namespace MultiTranslator.IntegrationTests.Services
             {
                 item.SourceHtml.Should().NotBeNullOrWhiteSpace().And.NotBeEmpty();//.And.ContainAll("<em>", "</em>");
                 item.TargetHtml.Should().NotBeNullOrWhiteSpace().And.NotBeEmpty();//.And.ContainAll("<em>", "</em>");
+            }
+        }
+
+        private class HttpFactory : IHttpClientFactory
+        {
+            public HttpClient CreateClient(string name)
+            {
+                return new HttpClient();
             }
         }
     }
