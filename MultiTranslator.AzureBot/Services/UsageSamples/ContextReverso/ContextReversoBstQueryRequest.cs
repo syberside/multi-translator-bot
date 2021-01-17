@@ -4,13 +4,13 @@ using Newtonsoft.Json.Serialization;
 
 namespace EchoBot.Services.UsageSamples.ContextReverso
 {
-    public class ContextReversoBtsQueryRequest
+    public class ContextReversoBstQueryRequest
     {
         [JsonProperty("source_lang")]
         [JsonConverter(typeof(StringEnumConverter))]
         public CRLanguage SourceLang { get; set; }
 
-        [JsonProperty("source_lang")]
+        [JsonProperty("target_lang")]
         [JsonConverter(typeof(StringEnumConverter))]
         public CRLanguage TargetLang { get; set; }
 

@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace EchoBot.Services.UsageSamples.ContextReverso
 {
-    public class BtsQueryListItem
+    public class BstQueryListItem
     {
         [JsonProperty("s_text")]
         public string SourceText { get; set; }
