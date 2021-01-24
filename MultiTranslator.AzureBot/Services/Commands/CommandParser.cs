@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Bot.Schema;
 using MultiTranslator.AzureBot.Services.Emoji;
 using MultiTranslator.AzureBot.Services.UsageSamples;
 
@@ -28,27 +30,51 @@ namespace MultiTranslator.AzureBot.Services.Commands
 
         public ICommand ParseCommand(string message)
         {
-            if (!message.StartsWith('/'))
-            {
-                return CreateTranslateCommand(message);
-            }
             var tokens = message.Split();
             var commandText = tokens.First().ToLower();
-            var commandArgs = message.Remove(0, commandText.Length).Trim();
+            var argsTokens = tokens.Skip(1).ToArray();
+
+            if (!commandText.StartsWith('/'))
+            {
+                return CreateTranslateCommand(tokens);
+            }
+
             switch (commandText)
             {
                 case _translateCommandName:
-                    return CreateTranslateCommand(commandArgs);
+                    return CreateTranslateCommand(argsTokens);
                 case _samplesCommandName:
-                    return CreateSamplesCommand(commandArgs);
+                    return CreateSamplesCommand(argsTokens);
                 default: return new UnknownCommand(commandText);
             }
         }
 
-        private ICommand CreateSamplesCommand(string commandArgs)
-            => new SamplesCommand(_samplesProvider, _languageDetector, _convertor, commandArgs);
+        private ICommand CreateSamplesCommand(string[] tokens)
+        {
+            if (tokens.Length == 0)
+            {
+                return new UnknownCommand("");
+            }
 
-        private TranslateCommand CreateTranslateCommand(string message)
-            => new TranslateCommand(_languageDetector, _translator, _convertor, message);
+            var page = 0;
+            var havePageToken = false;
+            var pageToken = tokens.First();
+            if (pageToken.StartsWith(SamplesCommand.PagePrefix))
+            {
+                var pageIntStr = pageToken.Remove(0, SamplesCommand.PagePrefix.Length);
+                page = int.Parse(pageIntStr);
+                havePageToken = true;
+            }
+
+            var textTokens = tokens.Skip(havePageToken ? 1 : 0);
+            var text = string.Join(" ", textTokens);
+            return new SamplesCommand(_samplesProvider, _languageDetector, _convertor, text, page);
+        }
+
+        private TranslateCommand CreateTranslateCommand(string[] argsTokens)
+        {
+            var message = string.Join(" ", argsTokens);
+            return new TranslateCommand(_languageDetector, _translator, _convertor, message);
+        }
     }
 }

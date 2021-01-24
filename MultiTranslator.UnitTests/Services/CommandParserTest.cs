@@ -38,6 +38,17 @@ namespace MultiTranslator.UnitTests.Services
 
             result.Should().NotBeNull().And.BeOfType<SamplesCommand>();
             (result as SamplesCommand).Message.Should().Be("hello");
+            (result as SamplesCommand).Page.Should().Be(0);
+        }
+
+        [Fact]
+        public void Parse_OnSamplesCommandWithPage_ReturnsSamplesCommandWithPage()
+        {
+            var result = _parser.ParseCommand("/samples page:1 hello");
+
+            result.Should().NotBeNull().And.BeOfType<SamplesCommand>();
+            (result as SamplesCommand).Message.Should().Be("hello");
+            (result as SamplesCommand).Page.Should().Be(1);
         }
 
         [Fact]

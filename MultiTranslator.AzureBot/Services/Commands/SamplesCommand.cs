@@ -17,16 +17,20 @@ namespace MultiTranslator.AzureBot.Services.Commands
         private readonly ILanguageToEmojiConvertor _convertor;
 
         public string Message { get; }
+        public int Page { get; }
+
+        public const string PagePrefix = "page:";
 
         public SamplesCommand(IUsageSamplesProvider samplesProvider,
                               ILanguageDetector languageDetector,
                               ILanguageToEmojiConvertor convertor,
-                              string message)
+                              string message, int page)
         {
             _samplesProvider = samplesProvider;
             _languageDetector = languageDetector;
             Message = message;
             _convertor = convertor;
+            Page = page;
         }
 
         public async Task<Activity[]> ExecuteAsync()
@@ -40,7 +44,7 @@ namespace MultiTranslator.AzureBot.Services.Commands
             var toEmoji = _convertor.Convert(to);
 
             var activities = new List<Activity>();
-            foreach (var sample in samples.Take(2))
+            foreach (var sample in samples.Skip(Page * 2).Take(2))
             {
                 var fromMdString = sample.SourceMd.ToMdString();
                 var toMdString = sample.TargetMd.ToMdString();
@@ -52,6 +56,24 @@ namespace MultiTranslator.AzureBot.Services.Commands
                 var sampleAction = MessageFactory.Text(sampleText, sampleText);
                 activities.Add(sampleAction);
             }
+
+            var lastActivity = activities.LastOrDefault();
+            if (lastActivity != null)
+            {
+                lastActivity.SuggestedActions = new SuggestedActions
+                {
+                    Actions = new List<CardAction>
+                    {
+                        new CardAction
+                        {
+                            Title = $"/samples {PagePrefix}{Page+1} {Message}",
+                            Text = "More",
+                            Type = ActionTypes.ImBack,
+                        }
+                    }
+                };
+            }
+
             return activities.ToArray();
         }
 

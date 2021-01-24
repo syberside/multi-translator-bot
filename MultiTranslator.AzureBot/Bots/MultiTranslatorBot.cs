@@ -29,9 +29,15 @@ namespace MultiTranslator.AzureBot.Bots
             // Notify user about processing
             await turnContext.SendActivityAsync(new Activity { Type = ActivityTypes.Typing, }, cancellationToken);
 
+            // Process command
             var command = _commadParser.ParseCommand(message);
             var activities = await command.ExecuteAsync();
 
+            // Send results if any
+            if (activities.Length == 0)
+            {
+                return;
+            }
             await turnContext.SendActivitiesAsync(activities.ToArray(), cancellationToken);
         }
 
