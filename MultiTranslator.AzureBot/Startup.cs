@@ -17,6 +17,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MultiTranslator.AzureBot.Services.UsageSamples;
 using MultiTranslator.AzureBot.Services.UsageSamples.ContextReverso;
+using MultiTranslator.AzureBot.Services.Commands;
+using MultiTranslator.AzureBot.Services.Emoji;
 
 namespace MultiTranslator.AzureBot
 {
@@ -53,6 +55,8 @@ namespace MultiTranslator.AzureBot
                 .AddSingleton<ITranslator, GoogleTranslateFacade>()
                 .AddSingleton<IUsageSamplesProvider, ContextReversoUsageSamplesAdapter>()
                 .AddSingleton<IContextReversoClient, ContextReversoClient>()
+                .AddSingleton<ICommandParser, CommandParser>()
+                .AddSingleton<ILanguageToEmojiConvertor, LanguageToEmojiConvertor>()
                 .AddHttpClient();
         }
 

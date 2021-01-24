@@ -1,30 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MultiTranslator.AzureBot.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
-using MultiTranslator.AzureBot.Services.UsageSamples;
-using MultiTranslator.AzureBot.Services.Helpers;
 using System.Linq;
+using MultiTranslator.AzureBot.Services.Commands;
 
 namespace MultiTranslator.AzureBot.Bots
 {
     public class MultiTranslatorBot : ActivityHandler
     {
-        private readonly ILanguageDetector _languageDetector;
-        private readonly ITranslator _translator;
-        private readonly IUsageSamplesProvider _samplesProvider;
+        private readonly ICommandParser _commadParser;
 
-        public MultiTranslatorBot(ILanguageDetector languageDetector, ITranslator translator, IUsageSamplesProvider samplesProvider)
+        public MultiTranslatorBot(ICommandParser commadParser)
         {
-            _languageDetector = languageDetector;
-            _translator = translator;
-            _samplesProvider = samplesProvider;
+            _commadParser = commadParser;
         }
-
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -38,49 +29,10 @@ namespace MultiTranslator.AzureBot.Bots
             // Notify user about processing
             await turnContext.SendActivityAsync(new Activity { Type = ActivityTypes.Typing, }, cancellationToken);
 
-            var from = await _languageDetector.DetectAsync(turnContext.Activity.Text);
+            var command = _commadParser.ParseCommand(message);
+            var activities = await command.ExecuteAsync();
 
-            var to = MapToOutputLanguage(from);
-            var translation = await _translator.TranslateAsync(message, from, to);
-            var samples = await _samplesProvider.GetSamplesAsync(message, from, to);
-
-            var fromEmoji = LanguageToEmoji(from);
-            var toEmoji = LanguageToEmoji(to);
-
-            var activities = new List<Activity>();
-
-            var directTranslation = new StringBuilder();
-            directTranslation
-                .AppendLine($"{fromEmoji} {message}").AppendLine()
-                .AppendLine($"{toEmoji} {translation}").AppendLine();
-            activities.Add(CreateMessageActivity(directTranslation.ToString()));
-
-            foreach (var sample in samples.Take(2))
-            {
-                var sampleBuilder = new StringBuilder();
-                sampleBuilder
-                    .AppendLine($"{fromEmoji} {sample.SourceMd.ToMdString()}").AppendLine()
-                    .AppendLine($"{toEmoji} {sample.TargetMd.ToMdString()}").AppendLine();
-                activities.Add(CreateMessageActivity(sampleBuilder.ToString()));
-            }
-
-            //TODO: Add button for "show more samples"
             await turnContext.SendActivitiesAsync(activities.ToArray(), cancellationToken);
-        }
-
-        private Languages MapToOutputLanguage(Languages language)
-        {
-            return language == Languages.En ? Languages.Ru : Languages.En;
-        }
-
-        private string LanguageToEmoji(Languages lang)
-        {
-            switch (lang)
-            {
-                case Languages.En: return "\U0001F1FA\U0001F1F8";
-                case Languages.Ru: return "\U0001F1F7\U0001F1FA";
-                default: throw new NotSupportedException();
-            }
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
