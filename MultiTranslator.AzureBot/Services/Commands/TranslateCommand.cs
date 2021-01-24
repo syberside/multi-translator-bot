@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -11,53 +12,44 @@ namespace MultiTranslator.AzureBot.Services.Commands
         private readonly ILanguageDetector _languageDetector;
         private readonly ITranslator _translator;
         private readonly ILanguageToEmojiConvertor _convertor;
-        private readonly string _message;
+        public string Message { get; }
 
         public TranslateCommand(ILanguageDetector languageDetector, ITranslator translator, ILanguageToEmojiConvertor convertor, string message)
         {
             _translator = translator;
             _convertor = convertor;
-            _message = message;
             _languageDetector = languageDetector;
+            Message = message;
         }
 
         public async Task<Activity[]> ExecuteAsync()
         {
-            var from = await _languageDetector.DetectAsync(_message);
+            var from = await _languageDetector.DetectAsync(Message);
             var to = InvertLanguage(from);
-            var translation = await _translator.TranslateAsync(_message, from, to);
 
+            var translation = await _translator.TranslateAsync(Message, from, to);
 
             var fromEmoji = _convertor.Convert(from);
             var toEmoji = _convertor.Convert(to);
 
             var directTranslationBuilder = new StringBuilder();
             directTranslationBuilder
-                .AppendLine($"{fromEmoji} {_message}").AppendLine()
+                .AppendLine($"{fromEmoji} {Message}").AppendLine()
                 .AppendLine($"{toEmoji} {translation}").AppendLine();
             var directTranslation = directTranslationBuilder.ToString();
             var directTranslationActivity = MessageFactory.Text(directTranslation, directTranslation);
 
-            // directTranslationActivity.SuggestedActions = new SuggestedActions
-            // {
-            //     Actions = new List<CardAction>()
-            //     {
-            //         new CardAction {
-            //             Title = "Samples",
-            //             Value = $"/samples {message}"
-            //         }
-            //     }
-            // };
-            // activities.Add(directTranslationActivity);
+            directTranslationActivity.SuggestedActions = new SuggestedActions
+            {
+                Actions = new List<CardAction>()
+                {
+                    new CardAction {
+                        Title = "Samples",
+                        Value = $"/samples {Message}"
+                    }
+                }
+            };
 
-            // foreach (var sample in samples.Take(2))
-            // {
-            //     var sampleBuilder = new StringBuilder();
-            //     sampleBuilder
-            //         .AppendLine($"{fromEmoji} {sample.SourceMd.ToMdString()}").AppendLine()
-            //         .AppendLine($"{toEmoji} {sample.TargetMd.ToMdString()}").AppendLine();
-            //     activities.Add(CreateMessageActivity(sampleBuilder.ToString()));
-            // }
             return new[] { directTranslationActivity, };
         }
 
