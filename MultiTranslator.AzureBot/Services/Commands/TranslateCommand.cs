@@ -45,7 +45,8 @@ namespace MultiTranslator.AzureBot.Services.Commands
                 {
                     new CardAction {
                         Title = "Samples",
-                        Value = $"/samples {Message}"
+                        Value = $"/samples {Message}",
+                        Type = ActionTypes.PostBack,
                     }
                 }
             };
