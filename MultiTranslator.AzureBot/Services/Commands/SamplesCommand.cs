@@ -21,6 +21,8 @@ namespace MultiTranslator.AzureBot.Services.Commands
 
         public const string PagePrefix = "page:";
 
+        public const int PageSize = 2;
+
         public SamplesCommand(IUsageSamplesProvider samplesProvider,
                               ILanguageDetector languageDetector,
                               ILanguageToEmojiConvertor convertor,
@@ -33,7 +35,7 @@ namespace MultiTranslator.AzureBot.Services.Commands
             Page = page;
         }
 
-        public async Task<Activity[]> ExecuteAsync()
+        public async Task<IMessageActivity[]> ExecuteAsync()
         {
             var from = await _languageDetector.DetectAsync(Message);
             var to = InvertLanguage(from);
@@ -43,8 +45,9 @@ namespace MultiTranslator.AzureBot.Services.Commands
             var fromEmoji = _convertor.Convert(from);
             var toEmoji = _convertor.Convert(to);
 
-            var activities = new List<Activity>();
-            foreach (var sample in samples.Skip(Page * 2).Take(2))
+            var activities = new List<IMessageActivity>();
+            var newSamples = samples.Skip(Page * PageSize).Take(PageSize);
+            foreach (var sample in newSamples)
             {
                 var fromMdString = sample.SourceMd.ToMdString();
                 var toMdString = sample.TargetMd.ToMdString();
@@ -53,25 +56,20 @@ namespace MultiTranslator.AzureBot.Services.Commands
                     .AppendLine($"{fromEmoji} {fromMdString}").AppendLine()
                     .AppendLine($"{toEmoji} {toMdString}").AppendLine();
                 var sampleText = sampleBuilder.ToString();
-                var sampleAction = MessageFactory.Text(sampleText, sampleText);
-                activities.Add(sampleAction);
+                activities.Add(MessageFactory.Text(sampleText, sampleText));
             }
 
             var lastActivity = activities.LastOrDefault();
             if (lastActivity != null)
             {
-                lastActivity.SuggestedActions = new SuggestedActions
+                var card = new HeroCard
                 {
-                    Actions = new List<CardAction>
+                    Buttons = new List<CardAction>
                     {
-                        new CardAction
-                        {
-                            Title = $"/samples {PagePrefix}{Page+1} {Message}",
-                            Text = "More",
-                            Type = ActionTypes.ImBack,
-                        }
-                    }
+                        new CardAction(ActionTypes.ImBack, title: "More samples", value: $"/samples {PagePrefix}{Page+1} {Message}"),
+                    },
                 };
+                lastActivity.Attachments.Add(card.ToAttachment());
             }
 
             return activities.ToArray();

@@ -22,7 +22,7 @@ namespace MultiTranslator.AzureBot.Services.Commands
             Message = message;
         }
 
-        public async Task<Activity[]> ExecuteAsync()
+        public async Task<IMessageActivity[]> ExecuteAsync()
         {
             var from = await _languageDetector.DetectAsync(Message);
             var to = InvertLanguage(from);
@@ -37,21 +37,17 @@ namespace MultiTranslator.AzureBot.Services.Commands
                 .AppendLine($"{fromEmoji} {Message}").AppendLine()
                 .AppendLine($"{toEmoji} {translation}").AppendLine();
             var directTranslation = directTranslationBuilder.ToString();
-            var directTranslationActivity = MessageFactory.Text(directTranslation, directTranslation);
 
-            directTranslationActivity.SuggestedActions = new SuggestedActions
+            var card = new HeroCard
             {
-                Actions = new List<CardAction>()
+                Buttons = new List<CardAction>
                 {
-                    new CardAction {
-                        Title = $"/samples {Message}",
-                        Text = "Samples",
-                        Type = ActionTypes.ImBack,
-                    }
-                }
+                    new CardAction(ActionTypes.ImBack, title: "Usage samples", value: $"/samples {Message}"),
+                },
             };
 
-            return new[] { directTranslationActivity, };
+            var reply = MessageFactory.Attachment(card.ToAttachment(), text: directTranslation);
+            return new[] { reply };
         }
 
         private Languages InvertLanguage(Languages from) => from == Languages.En ? Languages.Ru : Languages.En;

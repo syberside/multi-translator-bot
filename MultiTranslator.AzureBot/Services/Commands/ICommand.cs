@@ -5,6 +5,6 @@ namespace MultiTranslator.AzureBot.Services.Commands
 {
     public interface ICommand
     {
-        Task<Activity[]> ExecuteAsync();
+        Task<IMessageActivity[]> ExecuteAsync();
     }
 }

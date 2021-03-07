@@ -13,10 +13,10 @@ namespace MultiTranslator.AzureBot.Services.Commands
             Command = command;
         }
 
-        public Task<Activity[]> ExecuteAsync()
+        public Task<IMessageActivity[]> ExecuteAsync()
         {
             var message = $"Unknown command {Command}";
-            return Task.FromResult(new[] { MessageFactory.Text(message, message), });
+            return Task.FromResult(new IMessageActivity[] { MessageFactory.Text(message, message), });
         }
     }
 }
