@@ -9,6 +9,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTranslator.Integration
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTranslator.UnitTests", "MultiTranslator.UnitTests\MultiTranslator.UnitTests.csproj", "{BFBE3673-6686-4CE4-B828-7492D08B1343}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{2941F66F-FD44-4B50-978B-FC90F1193EE5}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\deploy.sh = scripts\deploy.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6E09ED2F-96D7-44D1-8E64-0A57288F1AAA}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
