@@ -20,7 +20,7 @@ namespace MultiTranslator.IntegrationTests.Services
 
             var result = await client.TranslateAsync("hello", Languages.En, Languages.Ru);
 
-            result.Should().BeEquivalentTo("здравствуйте");
+            result.Should().BeEquivalentTo("привет");
         }
 
         private TranslationClient GetGoogleTranslateClient()
